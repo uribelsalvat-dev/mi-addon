@@ -1,0 +1,26 @@
+name: build
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: crosire/reshade
+          path: reshade
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Compilar
+        shell: cmd
+        run: cl /nologo /LD /EHsc /std:c++17 /O2 /I reshade\include addon.cpp /Fe:mi_addon.dll /link user32.lib
+      - name: Renombrar
+        shell: pwsh
+        run: Rename-Item mi_addon.dll mi_addon.addon64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mi_addon
+          path: mi_addon.addon64
