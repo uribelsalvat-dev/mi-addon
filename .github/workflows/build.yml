@@ -11,12 +11,13 @@ jobs:
         with:
           repository: crosire/reshade
           path: reshade
+          submodules: true
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
       - name: Compilar
         shell: cmd
-        run: cl /nologo /LD /EHsc /std:c++17 /O2 /I reshade\include addon.cpp /Fe:mi_addon.dll /link user32.lib
+        run: cl /nologo /LD /EHsc /std:c++17 /O2 /I reshade\include /I reshade\deps\imgui addon.cpp /Fe:mi_addon.dll /link user32.lib
       - name: Renombrar
         shell: pwsh
         run: Rename-Item mi_addon.dll mi_addon.addon64
