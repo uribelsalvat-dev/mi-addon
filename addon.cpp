@@ -5,33 +5,59 @@
 extern "C" __declspec(dllexport) const char *NAME = "Mi Add-on";
 extern "C" __declspec(dllexport) const char *DESCRIPTION = "Mi primer add-on con panel";
 
-static const int N = 11;
+static const int N = 19;
 
-struct Control { const char *nombre; float min, max; };
+struct Control { const char *nombre; float min, max; const char *formato; };
 
 static const Control controles[N] = {
-    {"Exposicion",  -2.0f,  2.0f},
-    {"Contraste",    0.5f,  1.5f},
-    {"Saturacion",   0.0f,  2.0f},
-    {"Calidez",     -1.0f,  1.0f},
-    {"Vineta",       0.0f,  1.0f},
-    {"Sombras",     -1.0f,  1.0f},
-    {"Luces",       -1.0f,  1.0f},
-    {"Nitidez",      0.0f,  1.5f},
-    {"Bloom",        0.0f,  2.0f},
-    {"BloomUmbral",  0.3f,  0.95f},
-    {"BloomRadio",   1.0f, 30.0f},
+    // Color (0 a 12)
+    {"Exposicion",    -2.0f,     2.0f, "%.2f"},
+    {"Contraste",      0.5f,     1.5f, "%.2f"},
+    {"Saturacion",     0.0f,     2.0f, "%.2f"},
+    {"Calidez",       -1.0f,     1.0f, "%.2f"},
+    {"Temperatura", 3000.0f, 10000.0f, "%.0f"},
+    {"TinteR",         0.5f,     1.5f, "%.2f"},
+    {"TinteG",         0.5f,     1.5f, "%.2f"},
+    {"TinteB",         0.5f,     1.5f, "%.2f"},
+    {"Sombras",       -1.0f,     1.0f, "%.2f"},
+    {"Luces",         -1.0f,     1.0f, "%.2f"},
+    {"Negros",        -1.0f,     1.0f, "%.2f"},
+    {"Blancos",       -1.0f,     1.0f, "%.2f"},
+    {"DesatLuces",     0.0f,     1.0f, "%.2f"},
+    // Imagen (13 a 15)
+    {"Nitidez",        0.0f,     1.5f, "%.2f"},
+    {"Grano",          0.0f,     0.2f, "%.3f"},
+    {"Vineta",         0.0f,     1.0f, "%.2f"},
+    // Efectos (16 a 18)
+    {"Bloom",          0.0f,     2.0f, "%.2f"},
+    {"BloomUmbral",    0.3f,    0.95f, "%.2f"},
+    {"BloomRadio",     1.0f,    30.0f, "%.1f"},
 };
 
 struct Preset { const char *nombre; float valores[N]; };
 
+// Orden: Exposicion, Contraste, Saturacion, Calidez, Temperatura,
+// TinteR, TinteG, TinteB, Sombras, Luces, Negros, Blancos, DesatLuces,
+// Nitidez, Grano, Vineta, Bloom, BloomUmbral, BloomRadio
 static const Preset presets[6] = {
-    {"Neutro",     {0.0f, 1.0f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  0.0f, 0.0f, 0.7f, 12.0f}},
-    {"Dia",        {0.0f, 1.1f,  1.1f,  0.1f,  0.0f,  0.0f,  0.0f,  0.3f, 0.2f, 0.7f, 12.0f}},
-    {"Atardecer",  {-0.1f, 1.1f, 1.2f,  0.5f,  0.2f, -0.1f,  0.1f,  0.2f, 0.5f, 0.6f, 14.0f}},
-    {"Noche",      {0.2f, 1.2f,  0.8f, -0.3f,  0.3f,  0.2f, -0.1f,  0.2f, 0.4f, 0.6f, 16.0f}},
-    {"Natural",    {0.0f, 1.05f, 0.95f, 0.05f, 0.05f, 0.1f, -0.05f, 0.3f, 0.1f, 0.8f, 10.0f}},
-    {"Cinematico", {-0.1f, 1.25f, 0.85f, -0.1f, 0.35f, -0.1f, 0.0f,  0.4f, 0.4f, 0.7f, 14.0f}},
+    {"Neutro",
+     {0.0f, 1.0f, 1.0f, 0.0f, 6500.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+      0.0f, 0.0f, 0.0f, 0.0f, 0.7f, 12.0f}},
+    {"Dia",
+     {0.0f, 1.1f, 1.1f, 0.1f, 6500.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+      0.3f, 0.0f, 0.0f, 0.2f, 0.7f, 12.0f}},
+    {"Atardecer",
+     {-0.1f, 1.1f, 1.2f, 0.5f, 7500.0f, 1.0f, 1.0f, 1.0f, -0.1f, 0.1f, 0.0f, 0.0f, 0.0f,
+      0.2f, 0.0f, 0.2f, 0.5f, 0.6f, 14.0f}},
+    {"Noche",
+     {0.2f, 1.2f, 0.8f, -0.3f, 5500.0f, 1.0f, 1.0f, 1.0f, 0.2f, -0.1f, 0.1f, 0.0f, 0.0f,
+      0.2f, 0.02f, 0.3f, 0.4f, 0.6f, 16.0f}},
+    {"Natural",
+     {0.0f, 1.05f, 0.95f, 0.05f, 6500.0f, 1.0f, 1.0f, 1.0f, 0.1f, -0.05f, 0.0f, 0.0f, 0.1f,
+      0.3f, 0.01f, 0.05f, 0.1f, 0.8f, 10.0f}},
+    {"Cinematico",
+     {-0.1f, 1.25f, 0.85f, -0.1f, 6200.0f, 1.0f, 1.0f, 1.0f, -0.1f, 0.0f, 0.1f, 0.0f, 0.15f,
+      0.4f, 0.03f, 0.35f, 0.4f, 0.7f, 14.0f}},
 };
 
 static void poner(reshade::api::effect_runtime *runtime, int i, float valor)
@@ -85,6 +111,26 @@ static void activar_efecto(reshade::api::effect_runtime *runtime, const char *ef
         });
 }
 
+static void dibujar_sliders(reshade::api::effect_runtime *runtime, int desde, int hasta)
+{
+    for (int i = desde; i < hasta; ++i)
+    {
+        reshade::api::effect_uniform_variable var =
+            runtime->find_uniform_variable("MiColor.fx", controles[i].nombre);
+        if (var.handle == 0)
+        {
+            ImGui::TextDisabled("%s: no encontrada", controles[i].nombre);
+            continue;
+        }
+
+        float valor = 0.0f;
+        runtime->get_uniform_value_float(var, &valor, 1);
+        if (ImGui::SliderFloat(controles[i].nombre, &valor,
+                               controles[i].min, controles[i].max, controles[i].formato))
+            runtime->set_uniform_value_float(var, valor);
+    }
+}
+
 static void dibujar_panel(reshade::api::effect_runtime *runtime)
 {
     bool color_on = efecto_activo(runtime, "MiColor.fx");
@@ -114,20 +160,24 @@ static void dibujar_panel(reshade::api::effect_runtime *runtime)
 
     ImGui::Separator();
 
-    for (int i = 0; i < N; ++i)
+    if (ImGui::BeginTabBar("pestanas"))
     {
-        reshade::api::effect_uniform_variable var =
-            runtime->find_uniform_variable("MiColor.fx", controles[i].nombre);
-        if (var.handle == 0)
+        if (ImGui::BeginTabItem("Color"))
         {
-            ImGui::TextDisabled("%s: no encontrada", controles[i].nombre);
-            continue;
+            dibujar_sliders(runtime, 0, 13);
+            ImGui::EndTabItem();
         }
-
-        float valor = 0.0f;
-        runtime->get_uniform_value_float(var, &valor, 1);
-        if (ImGui::SliderFloat(controles[i].nombre, &valor, controles[i].min, controles[i].max))
-            runtime->set_uniform_value_float(var, valor);
+        if (ImGui::BeginTabItem("Imagen"))
+        {
+            dibujar_sliders(runtime, 13, 16);
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Efectos"))
+        {
+            dibujar_sliders(runtime, 16, 19);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
     }
 }
 
