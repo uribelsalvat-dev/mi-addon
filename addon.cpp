@@ -18,11 +18,13 @@ static const Control controles[6] = {
 
 struct Preset { const char *nombre; float valores[6]; };
 
-static const Preset presets[4] = {
-    {"Neutro",    {0.0f, 1.0f, 1.0f,  0.0f, 0.0f,  0.0f}},
-    {"Dia",       {0.0f, 1.1f, 1.1f,  0.1f, 0.0f,  0.0f}},
-    {"Atardecer", {-0.1f, 1.1f, 1.2f, 0.5f, 0.2f, -0.1f}},
-    {"Noche",     {0.2f, 1.2f, 0.8f, -0.3f, 0.3f,  0.2f}},
+static const Preset presets[6] = {
+    {"Neutro",     {0.0f, 1.0f, 1.0f,  0.0f,  0.0f,  0.0f}},
+    {"Dia",        {0.0f, 1.1f, 1.1f,  0.1f,  0.0f,  0.0f}},
+    {"Atardecer",  {-0.1f, 1.1f, 1.2f, 0.5f,  0.2f, -0.1f}},
+    {"Noche",      {0.2f, 1.2f, 0.8f, -0.3f,  0.3f,  0.2f}},
+    {"Natural",    {0.0f, 1.05f, 0.95f, 0.05f, 0.05f, 0.1f}},
+    {"Cinematico", {-0.1f, 1.25f, 0.85f, -0.1f, 0.35f, -0.1f}},
 };
 
 static void poner(reshade::api::effect_runtime *runtime, int i, float valor)
@@ -33,12 +35,40 @@ static void poner(reshade::api::effect_runtime *runtime, int i, float valor)
         runtime->set_uniform_value_float(var, valor);
 }
 
+static bool efecto_activo(reshade::api::effect_runtime *runtime, const char *efecto)
+{
+    bool activo = false;
+    runtime->enumerate_techniques(efecto,
+        [&](reshade::api::effect_runtime *rt, reshade::api::effect_technique t) {
+            if (rt->get_technique_state(t))
+                activo = true;
+        });
+    return activo;
+}
+
+static void activar_efecto(reshade::api::effect_runtime *runtime, const char *efecto, bool activar)
+{
+    runtime->enumerate_techniques(efecto,
+        [&](reshade::api::effect_runtime *rt, reshade::api::effect_technique t) {
+            rt->set_technique_state(t, activar);
+        });
+}
+
 static void dibujar_panel(reshade::api::effect_runtime *runtime)
 {
+    bool color_on = efecto_activo(runtime, "MiColor.fx");
+    if (ImGui::Checkbox("Efecto MiColor activado", &color_on))
+        activar_efecto(runtime, "MiColor.fx", color_on);
+
+    bool smaa_on = efecto_activo(runtime, "SMAA.fx");
+    if (ImGui::Checkbox("Suavizado SMAA", &smaa_on))
+        activar_efecto(runtime, "SMAA.fx", smaa_on);
+
+    ImGui::Separator();
     ImGui::TextUnformatted("Presets");
-    for (int p = 0; p < 4; ++p)
+    for (int p = 0; p < 6; ++p)
     {
-        if (p > 0)
+        if (p % 3 != 0)
             ImGui::SameLine();
         if (ImGui::Button(presets[p].nombre))
             for (int i = 0; i < 6; ++i)
