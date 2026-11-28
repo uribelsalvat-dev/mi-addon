@@ -5,7 +5,7 @@
 extern "C" __declspec(dllexport) const char *NAME = "Mi Add-on";
 extern "C" __declspec(dllexport) const char *DESCRIPTION = "Mi primer add-on con panel";
 
-static const int N = 28;   // todas las variables
+static const int N = 30;   // todas las variables
 static const int NP = 19;  // los presets solo tocan las 19 primeras
 
 struct Control { const char *nombre; float min, max; const char *formato; };
@@ -44,6 +44,9 @@ static const Control controles[N] = {
     {"SolX",           0.0f,     1.0f, "%.3f"},
     {"SolY",           0.0f,     1.0f, "%.3f"},
     {"Destello",       0.0f,     1.0f, "%.2f"},
+    // Contraste dinamico (28 y 29)
+    {"ContrasteDinamico", 0.0f,  1.0f, "%.2f"},
+    {"DinamicoVelocidad", 0.2f,  5.0f, "%.2f"},
 };
 
 struct Preset { const char *nombre; float valores[NP]; };
@@ -51,7 +54,7 @@ struct Preset { const char *nombre; float valores[NP]; };
 // Orden: Exposicion, Contraste, Saturacion, Calidez, Temperatura,
 // TinteR, TinteG, TinteB, Sombras, Luces, Negros, Blancos, DesatLuces,
 // Nitidez, Grano, Vineta, Bloom, BloomUmbral, BloomRadio
-static const Preset presets[6] = {
+static const Preset presets[7] = {
     {"Neutro",
      {0.0f, 1.0f, 1.0f, 0.0f, 6500.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
       0.0f, 0.0f, 0.0f, 0.0f, 0.7f, 12.0f}},
@@ -70,6 +73,9 @@ static const Preset presets[6] = {
     {"Cinematico",
      {-0.1f, 1.25f, 0.85f, -0.1f, 6200.0f, 1.0f, 1.0f, 1.0f, -0.1f, 0.0f, 0.1f, 0.0f, 0.15f,
       0.4f, 0.03f, 0.35f, 0.4f, 0.7f, 14.0f}},
+    {"Realista",
+     {0.0f, 1.08f, 0.92f, 0.03f, 6500.0f, 1.0f, 1.0f, 1.0f, 0.1f, -0.1f, 0.05f, 0.0f, 0.15f,
+      0.25f, 0.012f, 0.08f, 0.12f, 0.8f, 10.0f}},
 };
 
 static void poner(reshade::api::effect_runtime *runtime, int i, float valor)
@@ -193,7 +199,7 @@ static void dibujar_panel(reshade::api::effect_runtime *runtime)
 
     ImGui::Separator();
     ImGui::TextUnformatted("Presets");
-    for (int p = 0; p < 6; ++p)
+    for (int p = 0; p < 7; ++p)
     {
         if (p % 3 != 0)
             ImGui::SameLine();
@@ -215,6 +221,10 @@ static void dibujar_panel(reshade::api::effect_runtime *runtime)
         if (ImGui::BeginTabItem("Color"))
         {
             dibujar_sliders(runtime, 0, 13);
+
+            ImGui::Separator();
+            ImGui::TextUnformatted("Contraste dinamico");
+            dibujar_sliders(runtime, 28, 30);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Imagen"))
